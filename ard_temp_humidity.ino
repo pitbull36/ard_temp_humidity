@@ -43,7 +43,7 @@ int buzzerPin = 2;
 
 // variable for take distance func output
 int distCM;
-int distCM2;
+bool beep;
 
 
 void setup(){
@@ -63,6 +63,62 @@ void setup(){
   Serial.begin(9600);
 
 }
+
+void loop(){
+
+  lcd.setCursor(0,0);  // set the cursor to column 0, row 0
+  lcd.print("Display temp/hum");
+  lcd.setCursor(1,1);  // set the cursor to column 1, row 1
+  lcd.print("Come closer...");
+  beep = true;
+
+  distCM = take_distance(); // take the distance function
+  
+  while (distCM <= 35) {
+    
+    if (beep == true){
+    lcd.clear(); // delete whatever on the LCD at the moment
+    double_beep();
+    beep = false;
+    }
+
+    // start reading temp and humidity
+    int chk = DHT.read11(DHT11_PIN);
+    delay(250);
+  
+    int t = DHT.temperature;
+    int h = DHT.humidity;
+  
+    // display things on the LCD  
+    lcd.setCursor(0,0);  // set the cursor to col 0, row 0
+    lcd.print("Temp:");  // Print a message to the LCD.
+    lcd.setCursor(6,0);
+    lcd.print(t);
+    lcd.setCursor(8, 0);
+    lcd.print((char)223);
+    // print the thermo custom icon
+    lcd.setCursor(10, 0);
+    lcd.write(byte(0));
+  
+    lcd.setCursor(0,1);  // set the cursor to column 0, row 1
+    lcd.print(" Hum:");  // Print a message to the LCD.
+    lcd.setCursor(6,1);
+    lcd.print(h);
+    lcd.setCursor(8, 1);
+    lcd.print("%");
+    // print the drop custom icon
+    lcd.setCursor(10, 1);
+    lcd.write(byte(1));
+
+    delay(5000); // wait 5 sec
+
+    distCM = take_distance();
+
+  }
+}
+
+
+// FUNCTIONS
 
 int take_distance(){
   int distanceCM;
@@ -88,21 +144,7 @@ int take_distance(){
 }
 
 
-
-void loop(){
-
-  lcd.setCursor(0,0);  // set the cursor to column 0, row 0
-  lcd.print("Display temp/hum");
-  lcd.setCursor(1,1);  // set the cursor to column 1, row 1
-  lcd.print("Come closer...");
-
-  distCM = take_distance(); // take the distance function
-  
-  // if the hand (or whatever) is closer or equal to 35 cm
-  if (distCM <= 35) {
-
-    lcd.clear(); // delete whatever on the LCD at the moment
-  
+void double_beep(){
     // make a double beep
     digitalWrite(buzzerPin, HIGH);   // turn the buzzer on (HIGH voltage level)
     delay(50);                       // wait for a second
@@ -111,46 +153,6 @@ void loop(){
     digitalWrite(buzzerPin, HIGH);   // turn the buzzer on
     delay(50);                       // wait for a second
     digitalWrite(buzzerPin, LOW);    // turn the buzzer off
-    delay(250);
-
-    while (distCM <= 35){
-  
-      // start reading temp and humidity
-      int chk = DHT.read11(DHT11_PIN);
-      delay(250);
-    
-      int t = DHT.temperature;
-      int h = DHT.humidity;
-    
-      // display things on the LCD  
-      lcd.setCursor(0,0);  // set the cursor to col 0, row 0
-      lcd.print("Temp:");  // Print a message to the LCD.
-      lcd.setCursor(6,0);
-      lcd.print(t);
-      lcd.setCursor(8, 0);
-      lcd.print((char)223);
-      // print the thermo custom icon
-      lcd.setCursor(10, 0);
-      lcd.write(byte(0));
-    
-      lcd.setCursor(0,1);  // set the cursor to column 0, row 1
-      lcd.print(" Hum:");  // Print a message to the LCD.
-      lcd.setCursor(6,1);
-      lcd.print(h);
-      lcd.setCursor(8, 1);
-      lcd.print("%");
-      // print the drop custom icon
-      lcd.setCursor(10, 1);
-      lcd.write(byte(1));
-    
-      delay(5000);
-
-      distCM2 = take_distance();
-      
-      if (distCM2 > 35){
-        lcd.clear();
-        distCM = 40;
-      }
-    }
-  }
+    delay(250); 
 }
+    
