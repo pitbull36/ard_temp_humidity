@@ -138,7 +138,7 @@ int take_distance() {
   duration = pulseIn(echoPin, HIGH);
 
   // calculate distance
-  distanceCM = duration * 0.034 / 2; # the sound travels at 0.034 cm/µs. /2 because we want only one way trip
+  distanceCM = duration * 0.034 / 2; // the sound travels at 0.034 cm/µs. /2 because we want only one way trip
 
   return distanceCM;
 }
